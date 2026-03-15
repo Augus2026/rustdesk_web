@@ -152,7 +152,8 @@ export class ConnectionHistory {
   }
 
   getAll(): Array<{ peerId: string; password?: string; lastConnected: number }> {
-    return this.storage.get('list', []);
+    const result = this.storage.get<Array<{ peerId: string; password?: string; lastConnected: number }>>('list');
+    return result || [];
   }
 
   clear(): void {

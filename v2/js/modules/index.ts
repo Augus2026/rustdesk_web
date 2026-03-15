@@ -11,7 +11,6 @@
 // Protobuf definitions
 export * from './protobuf/video-formats';
 export * from './protobuf/messages';
-export * from './protobuf/index';
 
 // Network modules
 export * from './network/websocket';
@@ -35,8 +34,8 @@ export * from './ui/components';
 export * from './ui/interface';
 
 // Utility modules
-export * from './utils/helpers';
-export * from './utils/decorators';
+export { debounce as debounceFn, throttle } from './utils/helpers';
+export { debounce as debounceDecorator, throttle as throttleDecorator } from './utils/decorators';
 
 // Configuration modules
 export * from './config/settings';
@@ -51,4 +50,5 @@ export { StateManager, ScalingMode, VideoQuality } from './client/state-manager'
 export { RustDeskWebSocket } from './network/websocket';
 export { VideoProcessor } from './video/video-processor';
 export { KeyboardInput } from './input/keyboard';
-export { settings, storage, connectionHistory } from './config/settings';
+export { settings } from './config/settings';
+export { storage, connectionHistory } from './config/storage';

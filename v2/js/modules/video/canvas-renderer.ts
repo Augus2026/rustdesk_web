@@ -12,22 +12,28 @@ export interface CanvasRendererOptions {
 export class CanvasRenderer {
   private canvas: HTMLCanvasElement;
   private ctx: CanvasRenderingContext2D;
-  private offscreenCanvas: HTMLCanvasElement | null = null;
-  private offscreenCtx: CanvasRenderingContext2D | null = null;
+  private offscreenCanvas: OffscreenCanvas | null = null;
+  private offscreenCtx: OffscreenCanvasRenderingContext2D | null = null;
 
   constructor(options: CanvasRendererOptions) {
     this.canvas = options.canvas;
-    this.ctx = this.canvas.getContext('2d', {
+    const context = this.canvas.getContext('2d', {
       preserveDrawingBuffer: options.preserveDrawingBuffer ?? true,
       alpha: options.alpha ?? false,
-    })!;
+    }) as CanvasRenderingContext2D | null;
+
+    if (!context) {
+      throw new Error('Failed to get 2D context');
+    }
+    this.ctx = context;
 
     if (typeof OffscreenCanvas !== 'undefined') {
       this.offscreenCanvas = new OffscreenCanvas(
         this.canvas.width,
         this.canvas.height
       );
-      this.offscreenCtx = this.offscreenCanvas.getContext('2d');
+      const offscreenCtx = this.offscreenCanvas.getContext('2d') as OffscreenCanvasRenderingContext2D;
+      this.offscreenCtx = offscreenCtx || null;
     }
   }
 
@@ -42,7 +48,7 @@ export class CanvasRenderer {
   }
 
   render(imageData: ImageData): void {
-    if (this.offscreenCtx) {
+    if (this.offscreenCtx && this.offscreenCanvas) {
       this.offscreenCtx.putImageData(imageData, 0, 0);
       this.ctx.drawImage(this.offscreenCanvas, 0, 0);
     } else {

@@ -1,0 +1,30 @@
+{
+  "compilerOptions": {
+    "target": "ES2020",
+    "module": "ESNext",
+    "moduleResolution": "node",
+    "lib": ["ES2020", "DOM"],
+    "outDir": "./js/dist",
+    "strict": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    "resolveJsonModule": true,
+    "declaration": true,
+    "declarationMap": true,
+    "sourceMap": true,
+    "allowSyntheticDefaultImports": true
+  },
+  "include": [
+    "js/modules/**/*",
+    "js/protobuf/**/*"
+  ],
+  "exclude": [
+    "node_modules",
+    "js/dist",
+    "js/protobuf/*.d.ts",
+    "js/protobuf/*.js",
+    "js/protobuf/*.d.ts.map",
+    "js/protobuf/*.js.map"
+  ]
+}

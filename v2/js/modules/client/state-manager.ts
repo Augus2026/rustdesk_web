@@ -9,7 +9,7 @@ export interface AppState {
   connection: ConnectionState;
   peerId: string | null;
   serverId: string | null;
-  displayInfo: DisplayInfo[];
+  displayInfo: ClientDisplayInfo[];
   keyboardLocked: boolean;
   mouseLocked: boolean;
   viewOnly: boolean;
@@ -19,7 +19,7 @@ export interface AppState {
   latency: number;
 }
 
-export interface DisplayInfo {
+export interface ClientDisplayInfo {
   x: number;
   y: number;
   width: number;
@@ -90,7 +90,7 @@ export class StateManager {
     this.setState({ connection });
   }
 
-  setDisplays(displays: DisplayInfo[]): void {
+  setDisplays(displays: ClientDisplayInfo[]): void {
     this.setState({ displayInfo: displays });
   }
 

@@ -93,12 +93,12 @@ export class RustDeskWebSocket {
     }
   }
 
-  send(data: ArrayBuffer | string): boolean {
+  send(data: ArrayBuffer | string | Uint8Array): boolean {
     if (this.ws && this.ws.readyState === WebSocket.OPEN) {
       this.ws.send(data);
       return true;
     } else {
-      this.messageQueue.push(data);
+      this.messageQueue.push(data as ArrayBuffer | string);
       return false;
     }
   }

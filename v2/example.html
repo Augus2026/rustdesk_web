@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RustDesk Web Client 示例</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .controls {
+            margin-bottom: 20px;
+            padding: 15px;
+            background-color: #f9f9f9;
+            border-radius: 4px;
+        }
+        .controls input {
+            padding: 8px;
+            margin-right: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        .controls button {
+            padding: 8px 16px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        .controls button:hover {
+            background-color: #45a049;
+        }
+        .controls button:disabled {
+            background-color: #cccccc;
+            cursor: not-allowed;
+        }
+        #remote-screen {
+            width: 100%;
+            height: 600px;
+            background-color: #000;
+            border-radius: 4px;
+        }
+        .status {
+            margin-top: 10px;
+            padding: 10px;
+            border-radius: 4px;
+        }
+        .status.connected {
+            background-color: #d4edda;
+            color: #155724;
+        }
+        .status.disconnected {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+        .status.connecting {
+            background-color: #fff3cd;
+            color: #856404;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>RustDesk Web Client</h1>
+
+        <div class="controls">
+            <input type="text" id="peerId" placeholder="Peer ID" />
+            <input type="password" id="password" placeholder="Password" />
+            <button id="connectBtn" onclick="connect()">连接</button>
+            <button id="disconnectBtn" onclick="disconnect()" disabled>断开连接</button>
+        </div>
+
+        <div id="status" class="status disconnected">未连接</div>
+
+        <canvas id="remote-screen"></canvas>
+    </div>
+
+    <script type="module">
+        import { RustDeskClient } from './js/dist/modules/index.js';
+
+        let client = null;
+
+        function updateStatus(status, message) {
+            const statusEl = document.getElementById('status');
+            const connectBtn = document.getElementById('connectBtn');
+            const disconnectBtn = document.getElementById('disconnectBtn');
+
+            statusEl.className = 'status ' + status;
+            statusEl.textContent = message;
+
+            if (status === 'connected') {
+                connectBtn.disabled = true;
+                disconnectBtn.disabled = false;
+            } else {
+                connectBtn.disabled = false;
+                disconnectBtn.disabled = true;
+            }
+        }
+
+        function connect() {
+            const peerId = document.getElementById('peerId').value;
+            const password = document.getElementById('password').value;
+
+            if (!peerId || !password) {
+                alert('请输入 Peer ID 和密码');
+                return;
+            }
+
+            const canvas = document.getElementById('remote-screen');
+            canvas.width = 1920;
+            canvas.height = 1080;
+
+            try {
+                client = new RustDeskClient({
+                    canvas: canvas
+                });
+
+                // 设置状态回调
+                client.on('stateChanged', (state) => {
+                    console.log('State changed:', state);
+                    if (state.connection === 'connected') {
+                        updateStatus('connected', '已连接');
+                    } else if (state.connection === 'connecting') {
+                        updateStatus('connecting', '正在连接...');
+                    } else {
+                        updateStatus('disconnected', '未连接');
+                    }
+                });
+
+                // 设置错误回调
+                client.on('error', (error) => {
+                    console.error('Client error:', error);
+                    updateStatus('disconnected', '连接错误: ' + error.message);
+                });
+
+                // 开始连接
+                updateStatus('connecting', '正在连接...');
+                client.connect(peerId, password);
+
+            } catch (error) {
+                console.error('Failed to create client:', error);
+                updateStatus('disconnected', '初始化失败: ' + error.message);
+            }
+        }
+
+        function disconnect() {
+            if (client) {
+                client.disconnect();
+                client = null;
+                updateStatus('disconnected', '未连接');
+            }
+        }
+
+        // 导出函数到全局作用域
+        window.connect = connect;
+        window.disconnect = disconnect;
+    </script>
+</body>
+</html>
